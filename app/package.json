@@ -1,0 +1,8 @@
+{
+    "name": "fuzzy-play-app",
+    "version": "1.0.0",
+    "main": "script.js",
+    "dependencies": {
+  "@tonconnect/ui": "^2.1.0"
+    }
+  }
