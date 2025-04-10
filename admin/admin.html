@@ -1,92 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fuzzy Play Admin</title>
-    <link rel="stylesheet" href="admin.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fuzzy Play Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background-color: white;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <body>
-    <div class="admin-container">
-        <h1>Fuzzy Play Admin</h1>
-        <div class="section">
-            <h2>Manage Quests</h2>
-            <input type="text" id="quest-name" placeholder="Quest Name (e.g., Join Channel)">
-            <input type="text" id="quest-link" placeholder="Action Link (e.g., https://t.me/channel)">
-            <input type="number" id="quest-reward" placeholder="Reward Amount">
-            <select id="quest-token">
-                <option value="FZY">FZY</option>
-                <option value="TON">TON</option>
-            </select>
-            <input type="number" id="quest-timer" placeholder="Timer (seconds)">
-            <input type="number" id="quest-ton-payment" placeholder="TON Payment (0 if none)">
-            <button class="action-btn" onclick="addQuest()">Add Quest</button>
-            <div id="quest-list"></div>
-        </div>
-        <div class="section">
-            <h2>External Withdrawal Settings</h2>
-            <div class="setting-row">
-                <label>TON Min:</label>
-                <input type="number" id="externalTonMin" value="1">
-                <button class="action-btn small" onclick="updateSetting('externalTonMin')">Update</button>
-            </div>
-            <div class="setting-row">
-                <label>TON Fee:</label>
-                <input type="number" id="externalTonFee" value="0.1">
-                <button class="action-btn small" onclick="updateSetting('externalTonFee')">Update</button>
-            </div>
-            <div class="setting-row">
-                <label>FZY Min:</label>
-                <input type="number" id="externalFzyMin" value="10">
-                <button class="action-btn small" onclick="updateSetting('externalFzyMin')">Update</button>
-            </div>
-            <div class="setting-row">
-                <label>FZY Fee:</label>
-                <input type="number" id="externalFzyFee" value="2">
-                <button class="action-btn small" onclick="updateSetting('externalFzyFee')">Update</button>
-            </div>
-        </div>
-        <div class="section">
-            <h2>P2P Transfer Settings</h2>
-            <div class="setting-row">
-                <label>TON Min:</label>
-                <input type="number" id="internalTonMin" value="0.5">
-                <button class="action-btn small" onclick="updateSetting('internalTonMin')">Update</button>
-            </div>
-            <div class="setting-row">
-                <label>TON Fee:</label>
-                <input type="number" id="internalTonFee" value="0.05">
-                <button class="action-btn small" onclick="updateSetting('internalTonFee')">Update</button>
-            </div>
-            <div class="setting-row">
-                <label>FZY Min:</label>
-                <input type="number" id="internalFzyMin" value="5">
-                <button class="action-btn small" onclick="updateSetting('internalFzyMin')">Update</button>
-            </div>
-            <div class="setting-row">
-                <label>FZY Fee:</label>
-                <input type="number" id="internalFzyFee" value="0.5">
-                <button class="action-btn small" onclick="updateSetting('internalFzyFee')">Update</button>
-            </div>
-        </div>
-        <div class="section">
-            <h2>Invite Settings</h2>
-            <div class="setting-row">
-                <label>Reward Amount:</label>
-                <input type="number" id="inviteRewardAmount" value="1">
-                <button class="action-btn small" onclick="updateSetting('inviteRewardAmount')">Update</button>
-            </div>
-            <div class="setting-row">
-                <label>Reward Token:</label>
-                <select id="inviteRewardToken">
-                    <option value="TON">TON</option>
-                    <option value="FZY">FZY</option>
-                </select>
-                <button class="action-btn small" onclick="updateSetting('inviteRewardToken')">Update</button>
-            </div>
-        </div>
-    </div>
-    <script src="admin.js"></script>
+  <h1>Fuzzy Play Admin Panel</h1>
+  <h2>Quests</h2>
+  <ul id="admin-quest-list"></ul>
+  <script src="admin.js"></script>
 </body>
 </html>

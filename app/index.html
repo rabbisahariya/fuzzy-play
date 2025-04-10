@@ -1,101 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fuzzy Play</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fuzzy Play</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .nav {
+      margin: 20px 0;
+    }
+    .nav button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    .nav button:hover {
+      background-color: #0056b3;
+    }
+    .section {
+      display: none;
+      margin-top: 20px;
+    }
+    .section.active {
+      display: block;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background-color: white;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Home Page -->
-        <div class="page" id="home-page">
-            <div class="header">
-                <img src="assets/logo.png" alt="Logo" class="logo">
-                <h1>Fuzzy Play</h1>
-                <p>Earn FZY & TON Tokens</p>
-            </div>
-            <div class="featured-quest" id="featured-quest"></div>
-            <div class="quest-filters">
-                <button class="filter-btn active" onclick="filterQuests('all')">All</button>
-                <button class="filter-btn" onclick="filterQuests('FZY')">FZY</button>
-                <button class="filter-btn" onclick="filterQuests('TON')">TON</button>
-            </div>
-            <div class="quest-list" id="quest-list"></div>
-        </div>
+  <h1>Fuzzy Play</h1>
+  <div class="nav">
+    <button onclick="showSection('user')">User</button>
+    <button onclick="showSection('quests')">Quests</button>
+    <button onclick="showSection('invite')">Invite</button>
+  </div>
 
-        <!-- User Center Page -->
-        <div class="page" id="user-center-page" style="display: none;">
-            <div class="profile-card">
-                <h3><img src="assets/wallet.png" class="icon"> Profile</h3>
-                <p>Username: <span id="username">Loading...</span></p>
-                <p>Quests Completed: <span id="quests-completed">0</span></p>
-            </div>
-            <div class="balance-card">
-                <h3>Your Balance</h3>
-                <div class="balance-details">
-                    <div class="balance-item">
-                        <span class="token-label">TON</span>
-                        <span class="token-amount" id="ton-balance">0</span>
-                    </div>
-                    <div class="balance-item">
-                        <span class="token-label">FZY</span>
-                        <span class="token-amount" id="fzy-balance">0</span>
-                    </div>
-                </div>
-            </div>
-            <div class="quick-actions">
-                <button class="action-btn" onclick="showWithdrawModal()">Withdraw Tokens</button>
-            </div>
-        </div>
+  <div id="user" class="section">
+    <h2>User Info</h2>
+    <p id="user-balance">Balance: Loading...</p>
+  </div>
 
-        <!-- Invite Page -->
-        <div class="page" id="invite-page" style="display: none;">
-            <div class="card invite-card">
-                <h3><img src="assets/invite.png" class="icon"> Invite Friends</h3>
-                <input type="text" id="invite-link" readonly>
-                <button class="action-btn" onclick="copyInviteLink()">Copy Link</button>
-                <p>Invitations: <span id="invitations">0</span></p>
-                <p>Earn <span id="invite-reward-amount">1</span> <span id="invite-reward-token">TON</span> per invite</p>
-            </div>
-        </div>
+  <div id="quests" class="section">
+    <h2>Quests</h2>
+    <ul id="quest-list"></ul>
+  </div>
 
-        <!-- Navigation -->
-        <div class="nav-bar">
-            <div class="nav-item active" onclick="showPage('home')">
-                <img src="assets/quest.png" alt="Quest" class="nav-icon"> Quest
-            </div>
-            <div class="nav-item" onclick="showPage('user-center')">
-                <img src="assets/withdraw.png" alt="User" class="nav-icon"> User
-            </div>
-            <div class="nav-item" onclick="showPage('invite')">
-                <img src="assets/invite.png" alt="Invite" class="nav-icon"> Invite
-            </div>
-        </div>
+  <div id="invite" class="section">
+    <h2>Invite Friends</h2>
+    <p>Invite your friends to join Fuzzy Play!</p>
+    <button onclick="alert('Invite link copied!')">Copy Invite Link</button>
+  </div>
 
-        <!-- Withdraw Modal -->
-        <div class="modal" id="withdraw-modal" style="display: none;">
-            <div class="modal-content">
-                <h3>Withdraw Tokens</h3>
-                <select id="withdraw-type" onchange="updateWithdrawOptions()">
-                    <option value="external">External</option>
-                    <option value="internal">P2P Transfer</option>
-                </select>
-                <select id="withdraw-token" onchange="updateWithdrawOptions()">
-                    <option value="TON">TON</option>
-                    <option value="FZY">FZY</option>
-                </select>
-                <input type="text" id="withdraw-address" placeholder="Wallet Address">
-                <input type="text" id="withdraw-username" placeholder="Telegram Username" style="display: none;">
-                <input type="number" id="withdraw-amount" placeholder="Amount">
-                <p id="withdraw-info"></p>
-                <button class="action-btn" onclick="submitWithdraw()">Submit</button>
-                <button class="action-btn secondary" onclick="hideWithdrawModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-    <script src="script.js"></script>
+  <script src="script.js"></script>
+  <script>
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+    }
+
+    // Show the user section by default
+    showSection('user');
+  </script>
 </body>
 </html>
