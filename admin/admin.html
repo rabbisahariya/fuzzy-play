@@ -1,37 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fuzzy Play Admin</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f0f0f0;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      color: #333;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      background-color: white;
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuzzy Play - Admin Panel</title>
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-  <h1>Fuzzy Play Admin Panel</h1>
-  <h2>Quests</h2>
-  <ul id="admin-quest-list"></ul>
-  <script src="admin.js"></script>
+    <!-- Secret Key Prompt -->
+    <div class="popup" id="secret-prompt">
+        <div class="popup-content">
+            <h2>Enter Secret Key</h2>
+            <input type="text" id="secret-key" placeholder="Enter secret key">
+            <button class="action-btn" onclick="verifySecret()">Submit</button>
+        </div>
+    </div>
+
+    <!-- Admin Panel Container -->
+    <div class="admin-container" style="display: none;">
+        <div class="header">
+            <img src="../app/assets/logo.png" alt="Fuzzy Play Logo" class="logo">
+            <h1>Admin Panel</h1>
+        </div>
+
+        <!-- User Database -->
+        <div class="section">
+            <h2>User Database</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>TON Balance</th>
+                        <th>FZY Balance</th>
+                        <th>Invitations</th>
+                        <th>Quests Completed</th>
+                    </tr>
+                </thead>
+                <tbody id="user-database">
+                    <!-- Users will be dynamically added -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Manage Quests -->
+        <div class="section">
+            <h2>Manage Quests</h2>
+            <div class="form-group">
+                <label>Quest Name:</label>
+                <input type="text" id="quest-name" placeholder="e.g., Join Telegram Channel">
+            </div>
+            <div class="form-group">
+                <label>Action Link:</label>
+                <input type="text" id="quest-link" placeholder="e.g., https://t.me/channel">
+            </div>
+            <div class="form-group">
+                <label>Reward Amount:</label>
+                <input type="number" id="quest-reward" placeholder="e.g., 5">
+            </div>
+            <div class="form-group">
+                <label>Token Type:</label>
+                <select id="quest-token">
+                    <option value="FZY">FZY</option>
+                    <option value="TON">TON</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Timer (seconds):</label>
+                <input type="number" id="quest-timer" placeholder="e.g., 30">
+            </div>
+            <div class="form-group">
+                <label>TON Payment Required (0 if none):</label>
+                <input type="number" id="quest-ton-payment" placeholder="e.g., 0.5">
+            </div>
+            <button class="action-btn" onclick="addQuest()">Add Quest</button>
+
+            <h3>Existing Quests</h3>
+            <div id="admin-quest-list">
+                <!-- Quests will be dynamically added -->
+            </div>
+        </div>
+
+        <!-- Withdrawal Settings -->
+        <div class="section">
+            <h2>Withdrawal Settings</h2>
+            <h3>External Withdraw</h3>
+            <div class="setting">
+                <label>TON Minimum:</label>
+                <input type="number" id="externalTonMin" value="1" step="0.1">
+                <button onclick="updateSetting('externalTonMin')">Update</button>
+            </div>
+            <div class="setting">
+                <label>TON Fee:</label>
+                <input type="number" id="externalTonFee" value="0.1" step="0.1">
+                <button onclick="updateSetting('externalTonFee')">Update</button>
+            </div>
+            <div class="setting">
+                <label>FZY Minimum:</label>
+                <input type="number" id="externalFzyMin" value="10" step="1">
+                <button onclick="updateSetting('externalFzyMin')">Update</button>
+            </div>
+            <div class="setting">
+                <label>FZY Fee (Paid in FZY):</label>
+                <input type="number" id="externalFzyFee" value="1" step="0.1">
+                <button onclick="updateSetting('externalFzyFee')">Update</button>
+            </div>
+
+            <h3>Internal Transfer (P2P)</h3>
+            <div class="setting">
+                <label>TON Minimum:</label>
+                <input type="number" id="internalTonMin" value="0.5" step="0.1">
+                <button onclick="updateSetting('internalTonMin')">Update</button>
+            </div>
+            <div class="setting">
+                <label>TON Fee:</label>
+                <input type="number" id="internalTonFee" value="0.05" step="0.01">
+                <button onclick="updateSetting('internalTonFee')">Update</button>
+            </div>
+            <div class="setting">
+                <label>FZY Minimum:</label>
+                <input type="number" id="internalFzyMin" value="5" step="1">
+                <button onclick="updateSetting('internalFzyMin')">Update</button>
+            </div>
+            <div class="setting">
+                <label>FZY Fee (Paid in FZY):</label>
+                <input type="number" id="internalFzyFee" value="0.5" step="0.1">
+                <button onclick="updateSetting('internalFzyFee')">Update</button>
+            </div>
+        </div>
+
+        <!-- Invite Settings -->
+        <div class="section">
+            <h2>Invite Settings</h2>
+            <div class="setting">
+                <label>Invite Reward Amount:</label>
+                <input type="number" id="inviteRewardAmount" value="1" step="0.1">
+                <button onclick="updateSetting('inviteRewardAmount')">Update</button>
+            </div>
+            <div class="setting">
+                <label>Invite Reward Token:</label>
+                <select id="inviteRewardToken">
+                    <option value="TON">TON</option>
+                    <option value="FZY">FZY</option>
+                </select>
+                <button onclick="updateSetting('inviteRewardToken')">Update</button>
+            </div>
+            <h3>Invitation Leaderboard</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Invitations</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard">
+                    <!-- Leaderboard will be dynamically added -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
 </body>
 </html>

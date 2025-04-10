@@ -1,7 +1,7 @@
 {
-    "url": "https://fuzzy-play-backend.onrender.com",
-    "name": "Fuzzy Play",
-    "iconUrl": "https://fuzzy-play-backend.onrender.com/assets/logo.png",
-    "termsOfUseUrl": "https://fuzzy-play-backend.onrender.com/terms",
-    "privacyPolicyUrl": "https://fuzzy-play-backend.onrender.com/privacy"
-  }
+  "url": "http://localhost:3000",
+  "name": "Fuzzy Play",
+  "iconUrl": "http://localhost:3000/assets/logo.png",
+  "termsOfUseUrl": "http://localhost:3000/terms",
+  "privacyPolicyUrl": "http://localhost:3000/privacy"
+}

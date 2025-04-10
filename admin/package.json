@@ -1,5 +1,8 @@
 {
-    "name": "fuzzy-play-admin",
-    "version": "1.0.0",
-    "main": "admin.js"
+  "name": "fuzzy-play-admin",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
   }
+}

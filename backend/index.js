@@ -1,229 +1,264 @@
 const express = require('express');
-const TelegramBot = require('node-telegram-bot-api');
 const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
+const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
-
-// Set up Express app
+const serveStatic = require('serve-static');
 const app = express();
+
+// Middleware
 app.use(express.json());
+app.use('/app', serveStatic(path.join(__dirname, '../app')));
+app.use('/admin', serveStatic(path.join(__dirname, '../admin')));
 
-// Serve the app folder as static files
-app.use(express.static(path.join(__dirname, '../app')));
+// Telegram Bot Setup
+const token = '7671329449:AAHAtN4Wf9ZvLUc5xaAFcura_OIRMb8H2aA';
+const bot = new TelegramBot(token, { polling: true });
 
-// Serve the admin folder as static files
-app.use('/admin', express.static(path.join(__dirname, '../admin'), (req, res, next) => {
-  console.log('Serving static file from admin folder:', req.url);
-  next();
-}));
-
-// Telegram Bot setup
-const token = '7944961147:AAHZNBCOUfqDBRb6MXSFK-Yz0j0rpKv_O0Y';
-let bot;
-try {
-  bot = new TelegramBot(token, { polling: true });
-  console.log('Telegram bot initialized successfully.');
-} catch (error) {
-  console.error('ERROR: Failed to initialize Telegram bot:', error.message);
-  process.exit(1);
-}
-
-// Add error handling for Telegram polling errors
-bot.on('polling_error', (error) => {
-  console.error('Telegram polling error:', error.message);
-  if (error.message.includes('409 Conflict')) {
-    console.error('Multiple bot instances detected. Stopping polling to prevent conflicts.');
-    bot.stopPolling().then(() => {
-      console.log('Polling stopped. Please ensure only one instance of the bot is running.');
-    });
-  }
+// SQLite Database Setup
+const db = new sqlite3.Database('./db/database.sqlite', (err) => {
+    if (err) console.error('Database error:', err);
+    console.log('Connected to SQLite database');
 });
 
-// Create the db folder if it doesn't exist
-const dbPath = path.join(__dirname, 'db');
-const dbFilePath = path.join(dbPath, 'database.sqlite');
-
-try {
-  if (!fs.existsSync(dbPath)) {
-    fs.mkdirSync(dbPath, { recursive: true });
-    console.log('Created db folder at:', dbPath);
-  } else {
-    console.log('db folder already exists at:', dbPath);
-  }
-} catch (error) {
-  console.error('ERROR: Failed to create db folder:', error.message);
-  process.exit(1);
-}
-
-// Set up SQLite database
-let db;
-try {
-  db = new sqlite3.Database(dbFilePath, (err) => {
-    if (err) {
-      console.error('ERROR: Failed to open SQLite database:', err.message);
-      process.exit(1);
-    } else {
-      console.log('Connected to SQLite database at:', dbFilePath);
-    }
-  });
-} catch (error) {
-  console.error('ERROR: Failed to initialize SQLite database:', error.message);
-  process.exit(1);
-}
-
-// Create tables if they don't exist
-try {
-  db.serialize(() => {
+// Create Tables
+db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
-      userId TEXT PRIMARY KEY,
-      username TEXT,
-      balance INTEGER DEFAULT 0
-    )`, (err) => {
-      if (err) {
-        console.error('ERROR: Failed to create users table:', err.message);
-      } else {
-        console.log('Users table created or already exists.');
-      }
-    });
+        userId TEXT PRIMARY KEY,
+        username TEXT,
+        tonBalance REAL DEFAULT 10,
+        fzyBalance REAL DEFAULT 0,
+        invitations INTEGER DEFAULT 0,
+        questsCompleted INTEGER DEFAULT 0
+    )`);
 
     db.run(`CREATE TABLE IF NOT EXISTS quests (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT,
-      description TEXT,
-      reward INTEGER
-    )`, (err) => {
-      if (err) {
-        console.error('ERROR: Failed to create quests table:', err.message);
-      } else {
-        console.log('Quests table created or already exists.');
-      }
-    });
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        actionLink TEXT,
+        reward REAL,
+        tokenType TEXT,
+        timer INTEGER,
+        tonPayment REAL DEFAULT 0
+    )`);
 
-    // Add sample quests if the table is empty
-    db.get('SELECT COUNT(*) as count FROM quests', (err, row) => {
-      if (err) {
-        console.error('ERROR: Failed to check quests table:', err.message);
-        return;
-      }
-      if (row.count === 0) {
-        const sampleQuests = [
-          { title: 'First Quest', description: 'Complete your first task', reward: 100 },
-          { title: 'Invite a Friend', description: 'Invite a friend to join', reward: 50 }
-        ];
-        sampleQuests.forEach(quest => {
-          db.run('INSERT INTO quests (title, description, reward) VALUES (?, ?, ?)', 
-            [quest.title, quest.description, quest.reward], 
-            (err) => {
-              if (err) {
-                console.error('ERROR: Failed to insert sample quest:', err.message);
-              } else {
-                console.log(`Sample quest added: ${quest.title}`);
-              }
-            });
-        });
-      } else {
-        console.log('Quests table already contains data.');
-      }
-    });
-  });
-} catch (error) {
-  console.error('ERROR: Failed to create database tables:', error.message);
-  process.exit(1);
-}
+    db.run(`CREATE TABLE IF NOT EXISTS completed_quests (
+        userId TEXT,
+        questId INTEGER,
+        PRIMARY KEY (userId, questId)
+    )`);
 
-// Express routes
-app.get('/', (req, res) => {
-  res.send('Fuzzy Play Backend is running!');
+    db.run(`CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT
+    )`);
+
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('externalTonMin', '1')`);
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('externalTonFee', '0.1')`);
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('externalFzyMin', '10')`);
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('externalFzyFee', '1')`);
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('internalTonMin', '0.5')`);
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('internalTonFee', '0.05')`);
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('internalFzyMin', '5')`);
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('internalFzyFee', '0.5')`);
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('inviteRewardAmount', '1')`);
+    db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('inviteRewardToken', 'TON')`);
+
+    const quests = [
+        { name: 'Join Telegram Channel', actionLink: 'https://t.me/channel', reward: 5, tokenType: 'FZY', timer: 30, tonPayment: 0 },
+        { name: 'Follow on X', actionLink: 'https://x.com/user', reward: 2, tokenType: 'TON', timer: 60, tonPayment: 0 },
+        { name: 'Subscribe on YouTube', actionLink: 'https://youtube.com/channel', reward: 10, tokenType: 'FZY', timer: 45, tonPayment: 0 },
+        { name: 'Premium Quest', actionLink: 'https://example.com', reward: 20, tokenType: 'TON', timer: 30, tonPayment: 0.5 }
+    ];
+    quests.forEach(quest => {
+        db.run('INSERT OR IGNORE INTO quests (name, actionLink, reward, tokenType, timer, tonPayment) VALUES (?, ?, ?, ?, ?, ?)',
+            [quest.name, quest.actionLink, quest.reward, quest.tokenType, quest.timer, quest.tonPayment]);
+    });
 });
 
-// Serve the admin panel
-app.get('/admin', (req, res) => {
-  console.log('Admin panel route accessed');
-  const adminIndexPath = path.join(__dirname, '../admin/index.html');
-  if (fs.existsSync(adminIndexPath)) {
-    res.sendFile(adminIndexPath);
-  } else {
-    console.error('ERROR: admin/index.html not found at:', adminIndexPath);
-    res.status(404).send('Admin panel not found');
-  }
-});
+// Telegram Bot - Handle /start command for invites
+bot.onText(/\/start (.+)/, (msg, match) => {
+    const referrerId = match[1];
+    const userId = msg.from.id.toString();
+    const username = msg.from.username || msg.from.first_name;
 
-// Route for user data
-app.get('/user/:userId', (req, res) => {
-  const userId = req.params.userId;
-  const username = req.query.username || 'Unknown';
-  
-  db.get('SELECT * FROM users WHERE userId = ?', [userId], (err, row) => {
-    if (err) {
-      console.error('ERROR: Failed to fetch user:', err.message);
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    if (row) {
-      res.json(row);
-    } else {
-      db.run('INSERT INTO users (userId, username, balance) VALUES (?, ?, ?)', [userId, username, 0], (err) => {
-        if (err) {
-          console.error('ERROR: Failed to insert new user:', err.message);
-          res.status(500).json({ error: err.message });
-          return;
+    db.get('SELECT * FROM users WHERE userId = ?', [userId], (err, user) => {
+        if (!user) {
+            db.run('INSERT INTO users (userId, username, tonBalance, fzyBalance, invitations) VALUES (?, ?, ?, ?, ?)',
+                [userId, username, 10, 0, 0]);
+            if (referrerId !== userId) {
+                db.get('SELECT * FROM users WHERE userId = ?', [referrerId], (err, referrer) => {
+                    if (referrer) {
+                        db.get('SELECT * FROM settings WHERE key IN ("inviteRewardAmount", "inviteRewardToken")', (err, rows) => {
+                            const settings = {};
+                            rows.forEach(row => settings[row.key] = row.value);
+                            const rewardAmount = parseFloat(settings.inviteRewardAmount);
+                            const tokenField = settings.inviteRewardToken === 'TON' ? 'tonBalance' : 'fzyBalance';
+                            db.run(`UPDATE users SET invitations = invitations + 1, ${tokenField} = ${tokenField} + ? WHERE userId = ?`,
+                                [rewardAmount, referrerId]);
+                        });
+                    }
+                });
+            }
         }
-        console.log(`New user added: ${userId} (${username})`);
-        res.json({ userId, username, balance: 0 });
-      });
-    }
-  });
+    });
+
+    bot.sendMessage(msg.chat.id, 'Welcome to Fuzzy Play! Click the menu button to start earning.');
 });
 
-// Route for quests
+// API Endpoints
+app.get('/user/:userId', (req, res) => {
+    const { userId } = req.params;
+    const { username } = req.query;
+    db.get('SELECT * FROM users WHERE userId = ?', [userId], (err, user) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        if (!user) {
+            db.run('INSERT INTO users (userId, username, tonBalance, fzyBalance, invitations, questsCompleted) VALUES (?, ?, ?, ?, ?, ?)',
+                [userId, username || 'Unknown', 10, 0, 0, 0]);
+            return res.json({ tonBalance: 10, fzyBalance: 0, invitations: 0, questsCompleted: 0, username: username || 'Unknown' });
+        }
+        res.json(user);
+    });
+});
+
+app.get('/users', (req, res) => {
+    db.all('SELECT * FROM users', [], (err, users) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(users);
+    });
+});
+
 app.get('/quests', (req, res) => {
-  db.all('SELECT * FROM quests', [], (err, rows) => {
-    if (err) {
-      console.error('ERROR: Failed to fetch quests:', err.message);
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
+    db.all('SELECT * FROM quests', [], (err, quests) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(quests);
+    });
 });
 
-// Telegram bot commands
-bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Welcome to Fuzzy Play! Tap the button below to play.', {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          {
-            text: 'Play Fuzzy Play',
-            web_app: { url: 'https://fuzzy-play-backend.onrender.com' }
-          }
-        ]
-      ]
-    }
-  }).catch(error => {
-    console.error('ERROR: Failed to send /start message:', error.message);
-  });
+app.get('/quest/:questId', (req, res) => {
+    const { questId } = req.params;
+    db.get('SELECT * FROM quests WHERE id = ?', [questId], (err, quest) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(quest);
+    });
 });
 
-// Start the Express server
+app.get('/check-quest/:userId/:questId', (req, res) => {
+    const { userId, questId } = req.params;
+    db.get('SELECT * FROM completed_quests WHERE userId = ? AND questId = ?', [userId, questId], (err, row) => {
+        res.json({ completed: !!row });
+    });
+});
+
+app.post('/add-quest', (req, res) => {
+    const { name, actionLink, reward, tokenType, timer, tonPayment } = req.body;
+    db.run('INSERT INTO quests (name, actionLink, reward, tokenType, timer, tonPayment) VALUES (?, ?, ?, ?, ?, ?)',
+        [name, actionLink, reward, tokenType, timer, tonPayment], (err) => {
+            if (err) return res.status(500).json({ error: 'Database error' });
+            res.json({ message: 'Quest added successfully!' });
+        });
+});
+
+app.post('/remove-quest', (req, res) => {
+    const { questId } = req.body;
+    db.run('DELETE FROM quests WHERE id = ?', [questId], (err) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json({ message: 'Quest removed successfully!' });
+    });
+});
+
+app.post('/complete-ton-payment', (req, res) => {
+    const { userId, questId, amount } = req.body;
+    db.get('SELECT tonBalance FROM users WHERE userId = ?', [userId], (err, user) => {
+        if (user.tonBalance < amount) {
+            return res.json({ success: false, message: 'Insufficient TON balance' });
+        }
+        db.run('UPDATE users SET tonBalance = tonBalance - ? WHERE userId = ?', [amount, userId]);
+        res.json({ success: true });
+    });
+});
+
+app.post('/claim-reward', (req, res) => {
+    const { userId, questId } = req.body;
+    db.get('SELECT * FROM completed_quests WHERE userId = ? AND questId = ?', [userId, questId], (err, completed) => {
+        if (completed) {
+            return res.json({ message: 'Quest already completed!' });
+        }
+        db.get('SELECT * FROM quests WHERE id = ?', [questId], (err, quest) => {
+            if (err || !quest) return res.status(500).json({ error: 'Quest not found' });
+            const tokenField = quest.tokenType === 'TON' ? 'tonBalance' : 'fzyBalance';
+            db.run(`UPDATE users SET ${tokenField} = ${tokenField} + ?, questsCompleted = questsCompleted + 1 WHERE userId = ?`,
+                [quest.reward, userId]);
+            db.run('INSERT INTO completed_quests (userId, questId) VALUES (?, ?)', [userId, questId]);
+            res.json({ message: 'Reward claimed successfully!' });
+        });
+    });
+});
+
+app.post('/withdraw', (req, res) => {
+    const { userId, type, token, amount, address, username } = req.body;
+    db.get('SELECT * FROM users WHERE userId = ?', [userId], (err, user) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+
+        db.all('SELECT * FROM settings', [], (err, rows) => {
+            const settings = {};
+            rows.forEach(row => settings[row.key] = row.value);
+
+            const balanceField = token === 'TON' ? 'tonBalance' : 'fzyBalance';
+            const balance = user[balanceField];
+            const minKey = `${type}${token}Min`;
+            const feeKey = `${type}${token}Fee`;
+            const min = parseFloat(settings[minKey]);
+            const fee = parseFloat(settings[feeKey]);
+
+            if (amount < min) {
+                return res.json({ success: false, message: `Minimum withdraw amount is ${min} ${token}` });
+            }
+
+            if (balance < amount + fee) {
+                return res.json({ success: false, message: 'Insufficient balance (including fee)' });
+            }
+
+            if (type === 'internal') {
+                db.get('SELECT * FROM users WHERE username = ?', [username], (err, targetUser) => {
+                    if (!targetUser) {
+                        return res.json({ success: false, message: 'Target user not found' });
+                    }
+                    db.run(`UPDATE users SET ${balanceField} = ${balanceField} - ? WHERE userId = ?`, [amount + fee, userId]);
+                    db.run(`UPDATE users SET ${balanceField} = ${balanceField} + ? WHERE userId = ?`, [amount, targetUser.userId]);
+                    res.json({ success: true, message: 'Transfer successful!' });
+                });
+            } else {
+                db.run(`UPDATE users SET ${balanceField} = ${balanceField} - ? WHERE userId = ?`, [amount + fee, userId]);
+                res.json({ success: true, message: 'Withdraw request submitted!' });
+            }
+        });
+    });
+});
+
+app.get('/settings', (req, res) => {
+    db.all('SELECT * FROM settings', [], (err, rows) => {
+        const settings = {};
+        rows.forEach(row => settings[row.key] = row.value);
+        res.json(settings);
+    });
+});
+
+app.post('/admin/update-setting', (req, res) => {
+    const { key, value } = req.body;
+    db.run('UPDATE settings SET value = ? WHERE key = ?', [value, key], (err) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json({ message: 'Setting updated successfully!' });
+    });
+});
+
+app.get('/leaderboard', (req, res) => {
+    db.all('SELECT userId, username, invitations FROM users ORDER BY invitations DESC LIMIT 10', [], (err, users) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(users);
+    });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-// Handle process termination
-process.on('SIGINT', () => {
-  console.log('Shutting down server...');
-  bot.stopPolling().then(() => {
-    console.log('Telegram bot polling stopped.');
-    db.close((err) => {
-      if (err) {
-        console.error('ERROR: Failed to close database:', err.message);
-      } else {
-        console.log('Database connection closed.');
-      }
-      process.exit(0);
-    });
-  });
+    console.log(`Server running on port ${PORT}`);
 });

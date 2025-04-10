@@ -1,3 +1,4 @@
+/* General Styles */
 * {
     margin: 0;
     padding: 0;
@@ -6,79 +7,140 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #e0f7fa, #ffffff);
+    background: linear-gradient(135deg, #E6F0FA, #D6EFFF, #FFFFFF);
     min-height: 100vh;
-    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-.app-container {
-    padding: 15px;
-    padding-bottom: 70px;
-}
-
-/* Header (Home Page Only) */
+/* Header (only on Home page) */
 .header {
     text-align: center;
-    padding: 15px;
-    background: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    animation: slideIn 0.5s ease;
+    padding: 15px 0;
+    background: linear-gradient(to right, #1E90FF, #00BFFF);
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .logo {
-    width: 35px;
+    width: 40px;
     margin-bottom: 5px;
 }
 
 h1 {
     font-size: 24px;
-    font-weight: 600;
-    color: #1e90ff;
-    background: linear-gradient(90deg, #1e90ff, #00d4ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
 }
 
-.header p {
+p {
     font-size: 14px;
-    color: #666;
 }
 
-/* Page Styles */
-.page {
-    padding: 10px;
+/* Popup and Modal */
+.popup, .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
 }
 
-/* Featured Quest */
-.featured-quest {
-    background: linear-gradient(135deg, #1e90ff, #00d4ff);
-    color: white;
-    padding: 20px;
+.popup-content, .modal-content {
+    background: linear-gradient(135deg, #FFFFFF, #E6F0FA);
     border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    max-width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.popup-content h2, .modal-content h3 {
+    color: #1E90FF;
+    margin-bottom: 10px;
+}
+
+.popup-content input, .modal-content input, .modal-content select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: linear-gradient(to right, #F9F9F9, #FFFFFF);
+}
+
+/* Notification */
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(to right, #1E90FF, #00BFFF);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 50;
+    animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* Main App Styles */
+.app-container {
+    flex: 1;
+    padding: 20px;
+    padding-bottom: 60px;
+}
+
+.page {
+    text-align: center;
+    overflow-y: auto;
+    max-height: calc(100vh - 120px);
+}
+
+/* Featured Quest Banner */
+.featured-quest {
+    background: linear-gradient(135deg, #1E90FF, #00BFFF);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
     margin-bottom: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
-    animation: fadeIn 0.8s ease;
 }
 
 .featured-quest::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: rgba(255, 255, 255, 0.1);
-    transform: rotate(30deg);
-    pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('assets/quest.png') no-repeat top right;
+    background-size: 50px;
+    opacity: 0.2;
 }
 
 .featured-quest h3 {
     font-size: 20px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.featured-quest p {
+    font-size: 16px;
+    color: white;
 }
 
 /* Quest Filters */
@@ -90,44 +152,44 @@ h1 {
 }
 
 .filter-btn {
-    background: #ffffff;
-    border: 2px solid #1e90ff;
-    color: #1e90ff;
-    padding: 8px 15px;
-    border-radius: 25px;
+    background: linear-gradient(to right, #E6F0FA, #D6EFFF);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
     font-size: 14px;
-    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .filter-btn.active, .filter-btn:hover {
-    background: linear-gradient(90deg, #1e90ff, #00d4ff);
+    background: linear-gradient(to right, #1E90FF, #00BFFF);
     color: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
+    transform: scale(1.05);
 }
 
 /* Quest List */
 .quest-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 .quest-item {
-    background: #ffffff;
-    padding: 15px;
+    background: linear-gradient(135deg, #FFFFFF, #F0F8FF);
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
     overflow: hidden;
 }
 
 .quest-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
 .quest-item::before {
@@ -135,16 +197,15 @@ h1 {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 5px;
     height: 100%;
-    background: linear-gradient(135deg, rgba(30, 144, 255, 0.1), rgba(255, 255, 255, 0));
-    pointer-events: none;
+    background: linear-gradient(to bottom, #1E90FF, #00BFFF);
 }
 
 .quest-item p {
+    margin: 0;
     font-size: 16px;
     color: #333;
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -154,39 +215,75 @@ h1 {
     width: 20px;
 }
 
-/* Cards */
-.profile-card, .balance-card, .card {
-    background: #ffffff;
-    padding: 15px;
+.progress-bar {
+    width: 100%;
+    height: 5px;
+    background: #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(to right, #1E90FF, #00BFFF);
+    width: 0%;
+    transition: width linear;
+}
+
+/* Profile, Balance, and History Cards */
+.profile-card, .balance-card, .card, .quick-actions, .history-card {
+    background: linear-gradient(135deg, #FFFFFF, #E6F0FA);
     border-radius: 15px;
+    padding: 15px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.profile-card:hover, .balance-card:hover, .card:hover {
+.profile-card:hover, .balance-card:hover, .card:hover, .quick-actions:hover, .history-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
-.profile-card h3, .balance-card h3, .card h3 {
-    font-size: 18px;
-    color: #1e90ff;
-    margin-bottom: 10px;
+.profile-card p, .balance-card p, .card p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.profile-card h3, .balance-card h2, .card h3, .quick-actions h3, .history-card h3 {
+    margin: 5px 0;
+    font-size: 20px;
+    color: #1E90FF;
+}
+
+.icon, .nav-icon {
+    width: 24px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+/* Enhanced Balance Card */
+.balance-card {
+    background: linear-gradient(135deg, #1E90FF, #00BFFF);
+    color: white;
+}
+
+.balance-header {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    gap: 10px;
 }
 
-.icon {
-    width: 20px;
+.balance-header h2 {
+    color: white;
 }
 
 .balance-details {
+    margin-top: 10px;
     display: flex;
     justify-content: space-around;
-    padding: 10px;
-    background: linear-gradient(135deg, #f0f8ff, #e6f0fa);
-    border-radius: 10px;
 }
 
 .balance-item {
@@ -195,103 +292,106 @@ h1 {
 
 .token-label {
     font-size: 16px;
-    font-weight: 600;
-    color: #1e90ff;
+    font-weight: bold;
 }
 
 .token-amount {
-    font-size: 20px;
-    color: #333;
+    font-size: 18px;
+    display: block;
+    margin-top: 5px;
 }
 
 /* Quick Actions */
-.quick-actions {
-    text-align: center;
+.quick-actions .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.quick-actions .action-btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Balance History */
+.history-card {
+    text-align: left;
+}
+
+.history-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-item p {
+    margin: 0;
+    font-size: 14px;
 }
 
 /* Buttons */
-.action-btn {
-    background: linear-gradient(90deg, #1e90ff, #00d4ff);
+.action-btn, .claim-btn {
+    background: linear-gradient(to right, #1E90FF, #00BFFF);
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 25px;
+    border-radius: 20px;
     font-size: 16px;
-    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    margin: 10px 0;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.action-btn:hover {
-    background: linear-gradient(90deg, #00d4ff, #1e90ff);
+.action-btn:hover, .claim-btn:hover {
+    background: linear-gradient(to right, #00BFFF, #1E90FF);
     transform: scale(1.05);
 }
 
 .action-btn.secondary {
-    background: #ccc;
-    color: #333;
+    background: linear-gradient(to right, #ccc, #bbb);
 }
 
-/* Navigation */
+/* Navigation Bar */
 .nav-bar {
+    display: flex;
+    justify-content: space-around;
+    background: linear-gradient(to right, #FFFFFF, #E6F0FA);
+    padding: 10px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     position: fixed;
     bottom: 0;
     width: 100%;
-    display: flex;
-    justify-content: space-around;
-    background: #ffffff;
-    padding: 10px;
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
 }
 
 .nav-item {
     font-size: 12px;
-    font-weight: 600;
-    color: #1e90ff;
+    color: #1E90FF;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 5px;
-    transition: color 0.3s ease;
+    transition: transform 0.2s ease;
+}
+
+.nav-item:hover {
+    transform: scale(1.1);
 }
 
 .nav-item.active {
-    color: #00d4ff;
+    font-weight: bold;
 }
 
-.nav-icon {
-    width: 24px;
-}
-
-/* Modal (Minimal Design) */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 350px;
-}
-
-.modal-content h3 {
-    font-size: 20px;
-    color: #1e90ff;
-    margin-bottom: 15px;
+.badge {
+    background: linear-gradient(to right, #FF4500, #FF6347);
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 10px;
+    margin-left: 5px;
 }
 
 input, select {
@@ -302,29 +402,76 @@ input, select {
     border-radius: 5px;
 }
 
-#withdraw-info {
-    font-size: 12px;
+/* Withdraw Form (Modal) */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.form-group label {
     color: #666;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
 }
 
-/* Animations */
-@keyframes slideIn {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+#withdraw-info {
+    font-size: 14px;
+    color: #666;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* Responsive */
-@media (max-width: 400px) {
-    .header, .featured-quest, .quest-item, .profile-card, .balance-card, .card {
+/* Responsive Design */
+@media (max-width: 600px) {
+    .app-container {
         padding: 10px;
     }
-    h1 { font-size: 20px; }
-    .action-btn { padding: 8px 15px; }
-    .nav-item { font-size: 10px; }
+
+    .header {
+        padding: 10px 0;
+    }
+
+    .logo {
+        width: 30px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .featured-quest {
+        padding: 15px;
+    }
+
+    .featured-quest h3 {
+        font-size: 18px;
+    }
+
+    .quest-filters {
+        gap: 5px;
+    }
+
+    .filter-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .profile-card, .balance-card, .card, .quick-actions, .history-card {
+        padding: 10px;
+    }
+
+    .nav-item {
+        font-size: 10px;
+    }
+
+    .action-btn, .claim-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    table, th, td {
+        font-size: 12px;
+    }
 }

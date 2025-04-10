@@ -1,3 +1,4 @@
+/* General Styles */
 * {
     margin: 0;
     padding: 0;
@@ -6,122 +7,228 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #e0f7fa, #ffffff);
+    background: linear-gradient(135deg, #E6F0FA, #D6EFFF, #FFFFFF);
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
+/* Header */
+.header {
+    text-align: center;
+    padding: 15px 0;
+    background: linear-gradient(to right, #1E90FF, #00BFFF);
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.logo {
+    width: 40px;
+    margin-bottom: 5px;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+/* Popup */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.popup-content {
+    background: linear-gradient(135deg, #FFFFFF, #E6F0FA);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    max-width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.popup-content h2 {
+    color: #1E90FF;
+    margin-bottom: 10px;
+}
+
+.popup-content input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: linear-gradient(to right, #F9F9F9, #FFFFFF);
+}
+
+/* Admin Panel Styles */
 .admin-container {
-    max-width: 700px;
+    max-width: 800px;
     margin: 20px auto;
     padding: 20px;
 }
 
-h1 {
-    text-align: center;
-    font-size: 28px;
-    font-weight: 600;
-    color: #1e90ff;
-    margin-bottom: 20px;
-    background: linear-gradient(90deg, #1e90ff, #00d4ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
 .section {
-    background: #ffffff;
-    padding: 20px;
+    background: linear-gradient(135deg, #FFFFFF, #F0F8FF);
     border-radius: 15px;
+    padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
 }
 
 .section:hover {
     transform: translateY(-5px);
 }
 
-h2 {
-    font-size: 20px;
-    color: #1e90ff;
-    margin-bottom: 15px;
+.section h2 {
+    color: #1E90FF;
+    margin-bottom: 10px;
+}
+
+.section h3 {
+    color: #333;
+    margin: 10px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: linear-gradient(to right, #1E90FF, #00BFFF);
+    color: white;
+}
+
+td input {
+    width: 100px;
+    padding: 5px;
+    background: linear-gradient(to right, #F9F9F9, #FFFFFF);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    background: linear-gradient(to right, #1E90FF, #00BFFF);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background: linear-gradient(to right, #00BFFF, #1E90FF);
+    transform: scale(1.05);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    color: #666;
+    margin-bottom: 5px;
 }
 
 input, select {
     width: 100%;
     padding: 10px;
-    margin: 8px 0;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: linear-gradient(to right, #F9F9F9, #FFFFFF);
 }
 
-input:focus, select:focus {
-    border-color: #1e90ff;
-    outline: none;
-}
-
-.action-btn {
-    background: linear-gradient(90deg, #1e90ff, #00d4ff);
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
-    display: block;
-    margin: 10px auto;
-}
-
-.action-btn:hover {
-    background: linear-gradient(90deg, #00d4ff, #1e90ff);
-    transform: scale(1.05);
-}
-
-.action-btn.small {
-    padding: 8px 15px;
-    font-size: 14px;
-}
-
-.setting-row {
+.setting {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
+    margin: 10px 0;
 }
 
-.setting-row label {
+.setting label {
     flex: 1;
-    font-size: 14px;
     color: #666;
 }
 
-.setting-row input, .setting-row select {
-    flex: 2;
+.setting input, .setting select {
+    width: 100px;
+    margin: 0 10px;
 }
 
-#quest-list div {
-    padding: 10px;
-    border-bottom Bonus: 1px solid #e0e0e0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.action-btn {
+    background: linear-gradient(to right, #1E90FF, #00BFFF);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    margin: 10px 0;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-#quest-list div:last-child {
-    border-bottom: none;
+.action-btn:hover {
+    background: linear-gradient(to right, #00BFFF, #1E90FF);
+    transform: scale(1.05);
 }
 
-#quest-list button {
-    background: #ff4d4d;
-    padding: 5px 10px;
-    border-radius: 10px;
-    font-size: 12px;
-}
+/* Responsive Design */
+@media (max-width: 600px) {
+    .admin-container {
+        padding: 10px;
+    }
 
-#quest-list button:hover {
-    background: #ff6666;
+    .header {
+        padding: 10px 0;
+    }
+
+    .logo {
+        width: 30px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .section {
+        padding: 10px;
+    }
+
+    table, th, td {
+        font-size: 12px;
+    }
+
+    .setting {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .setting input, .setting select {
+        width: 100%;
+        margin: 5px 0;
+    }
 }
