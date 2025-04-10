@@ -12,7 +12,10 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../app')));
 
 // Serve the admin folder as static files
-app.use('/admin', express.static(path.join(__dirname, '../admin')));
+app.use('/admin', express.static(path.join(__dirname, '../admin'), (req, res, next) => {
+  console.log('Serving static file from admin folder:', req.url);
+  next();
+}));
 
 // Telegram Bot setup
 const token = '7944961147:AAHZNBCOUfqDBRb6MXSFK-Yz0j0rpKv_O0Y';
@@ -95,6 +98,33 @@ try {
         console.log('Quests table created or already exists.');
       }
     });
+
+    // Add sample quests if the table is empty
+    db.get('SELECT COUNT(*) as count FROM quests', (err, row) => {
+      if (err) {
+        console.error('ERROR: Failed to check quests table:', err.message);
+        return;
+      }
+      if (row.count === 0) {
+        const sampleQuests = [
+          { title: 'First Quest', description: 'Complete your first task', reward: 100 },
+          { title: 'Invite a Friend', description: 'Invite a friend to join', reward: 50 }
+        ];
+        sampleQuests.forEach(quest => {
+          db.run('INSERT INTO quests (title, description, reward) VALUES (?, ?, ?)', 
+            [quest.title, quest.description, quest.reward], 
+            (err) => {
+              if (err) {
+                console.error('ERROR: Failed to insert sample quest:', err.message);
+              } else {
+                console.log(`Sample quest added: ${quest.title}`);
+              }
+            });
+        });
+      } else {
+        console.log('Quests table already contains data.');
+      }
+    });
   });
 } catch (error) {
   console.error('ERROR: Failed to create database tables:', error.message);
@@ -104,6 +134,18 @@ try {
 // Express routes
 app.get('/', (req, res) => {
   res.send('Fuzzy Play Backend is running!');
+});
+
+// Serve the admin panel
+app.get('/admin', (req, res) => {
+  console.log('Admin panel route accessed');
+  const adminIndexPath = path.join(__dirname, '../admin/index.html');
+  if (fs.existsSync(adminIndexPath)) {
+    res.sendFile(adminIndexPath);
+  } else {
+    console.error('ERROR: admin/index.html not found at:', adminIndexPath);
+    res.status(404).send('Admin panel not found');
+  }
 });
 
 // Route for user data
